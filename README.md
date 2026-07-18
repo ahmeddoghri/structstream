@@ -13,18 +13,21 @@
 > dependencies: `python -m structstream.eval`.
 
 You asked for JSON. The model gave you JSON wrapped in a ```json fence, with a
-trailing comma, using single quotes, preceded by "Sure, here you go!" and cut
-off mid-string because it hit the token limit. Your parser throws. Your pipeline
-dies. You retry the whole expensive call and pray.
+trailing comma, using single quotes, preceded by "Sure, here you go!" like a
+customer service rep, and cut off mid-string because it hit the token limit
+mid-thought. Your parser throws. Your pipeline dies. You retry the whole
+expensive call and pray to a distribution you don't control.
 
 There are two honest ways out. Constrain the decoding so only valid tokens are
 ever emitted (the grammar approach behind tools like Outlines), or repair the
-almost-valid output after the fact. structstream does the second, plus the part
-everyone forgets: it validates the repaired value against your schema, because
-valid-but-wrong JSON still breaks your code.
+almost-valid output after the fact, which is cheaper and doesn't require
+rearchitecting your inference stack. structstream does the second, plus the
+part everyone conveniently forgets: it validates the repaired value against
+your schema, because valid-but-wrong JSON breaks your code exactly as hard
+as invalid JSON does, just with more confidence on the way down.
 
-Pure stdlib. No model, no network, no dependencies. Every repair is a few lines
-you can read.
+Pure stdlib. No model, no network, no dependencies, no eval() anywhere near
+it. Every repair is a few lines you can actually read.
 
 ---
 
@@ -42,11 +45,14 @@ json repair benchmark: 15 realistic malformed model outputs
   recovered by repair    14 outputs that would have crashed your pipeline
 ```
 
-Every one of those 15 is a failure a real model actually produces. The single
-one raw `json.loads` handles is the already-valid case. The other 14 are the
-daily-driver failures: code fences, trailing commas, single quotes, prose around
-the object, truncation. structstream turns all of them back into usable data,
-and confirms each result has the right keys and types before it hands them back.
+Every one of those 15 is a failure a real model actually produces, not a
+synthetic edge case I invented to pad the number. The single one raw
+`json.loads` handles is the already-valid case, the model having one good
+day. The other 14 are the daily-driver failures: code fences, trailing
+commas, single quotes, prose around the object, truncation. structstream
+turns all of them back into usable data, and confirms each result has the
+right keys and types before it hands them back, instead of celebrating too
+early.
 
 ## Install
 
