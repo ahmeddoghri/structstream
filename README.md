@@ -3,7 +3,7 @@
 **Get valid JSON out of a model that keeps almost getting it right.**
 
 ![CI](https://github.com/ahmeddoghri/structstream/actions/workflows/ci.yml/badge.svg)
-![tests](https://img.shields.io/badge/tests-15%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-28%20passing-brightgreen)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
 ![license](https://img.shields.io/badge/license-MIT-black)
@@ -11,6 +11,12 @@
 > **Raw `json.loads` parses 7% of realistic malformed model output. One repair
 > pass recovers 100%, and checks it matches your schema.** No retries, no
 > dependencies: `python -m structstream.eval`.
+>
+> **Update:** that "100%" never had to face one of the most common real
+> failure modes, a model emitting Python's `True`/`False`/`None` instead of
+> JSON's `true`/`false`/`null`. None of the 15 bundled samples contain it.
+> Against samples that do, the original repairer recovers **0%**.
+> Fixed: `python -m structstream.eval_v2`.
 
 You asked for JSON. The model gave you JSON wrapped in a ```json fence, with a
 trailing comma, using single quotes, preceded by "Sure, here you go!" like a
@@ -98,6 +104,42 @@ that is already valid passes straight through untouched.
 | `closed_open_brackets` | objects and arrays cut off at the token limit |
 | `closed_open_string` | a string the model never closed |
 
+## The corpus never tested the failure that matters most
+
+I checked what the bundled 15-sample corpus actually covers. Code fences,
+prose, trailing commas, single quotes, truncation, all real. Not one
+sample contains a Python-literal `True`, `False`, or `None` in place of
+JSON's `true`, `false`, `null`. That's not a rare edge case, it's one of
+the most common real failures: a model trained on far more Python dict
+literals than JSON objects drifts into Python syntax, often while getting
+everything else about the structure exactly right.
+
+```python
+from structstream.repair import repair_json
+repair_json('{"name": "Ada", "age": 36, "active": True}').ok   # False
+```
+
+```bash
+python -m structstream.eval_v2
+```
+```
+corpus / version           recovered      rate
+adversarial / v1              0/8            0%
+adversarial / v2              8/8          100%
+
+holdout / v1                  0/5            0%
+holdout / v2                  5/5          100%
+```
+
+`structstream/repair_v2.py` adds `_fix_python_literals`, which walks the
+text tracking whether it's inside a double-quoted string (the same
+technique `_close_unbalanced` already uses) and only replaces whole-word
+`True`/`False`/`None` outside of strings, so a legitimate value like
+`"True Detective"` stays a string instead of becoming a boolean. 0% to
+100% on 8 adversarial samples and a 5-sample holdout evaluated exactly
+once. `repair.py` is untouched, so `repair_json` keeps its exact published
+15/15 number; `repair_json_v2` is opt-in.
+
 ## Why the schema check matters
 
 Repairing to valid JSON is only half the job. A model can hand you flawless JSON
@@ -111,7 +153,7 @@ bars.
 ## Tests
 
 ```bash
-pip install pytest && pytest -q      # 15 passing
+pip install pytest && pytest -q      # 28 passing
 ```
 
 ## License

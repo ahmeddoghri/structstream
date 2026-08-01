@@ -28,3 +28,5 @@ jobs:
         run: python examples/quickstart.py
       - name: Run benchmark
         run: python -m structstream.eval
+      - name: Run Python-literal comparison
+        run: python -m structstream.eval_v2
