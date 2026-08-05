@@ -2,7 +2,6 @@
 
 **Get valid JSON out of a model that keeps almost getting it right.**
 
-![CI](https://github.com/ahmeddoghri/structstream/actions/workflows/ci.yml/badge.svg)
 ![tests](https://img.shields.io/badge/tests-28%20passing-brightgreen)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
