@@ -2,10 +2,13 @@
 
 **Get valid JSON out of a model that keeps almost getting it right.**
 
-![tests](https://img.shields.io/badge/tests-28%20passing-brightgreen)
+[![tests](https://github.com/ahmeddoghri/structstream/actions/workflows/tests.yml/badge.svg)](https://github.com/ahmeddoghri/structstream/actions/workflows/tests.yml)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![deps](https://img.shields.io/badge/runtime%20deps-none-success)
 ![license](https://img.shields.io/badge/license-MIT-black)
+[![case study](https://img.shields.io/badge/case%20study-adoghri.com-e0703e)](https://adoghri.com/project-17.html)
+
+![structstream](docs/cover.jpg)
 
 > **Raw `json.loads` parses 7% of realistic malformed model output. One repair
 > pass recovers 100%, and checks it matches your schema.** No retries, no
