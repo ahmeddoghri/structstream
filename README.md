@@ -1,4 +1,4 @@
-# 🧩 structstream
+# structstream
 
 **Get valid JSON out of a model that keeps almost getting it right.**
 
